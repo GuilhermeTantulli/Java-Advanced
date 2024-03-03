@@ -4,7 +4,7 @@ API do projeto Finanças Pro - Controle de Despesas Pessoais
 
 ## Requisitos
 
-- [ ] CRUD de categorias
+- [x] CRUD de categorias
 - [ ] CRUD de movimentações
 - [ ] CRUD de usuários
 - [ ] Autenticação
