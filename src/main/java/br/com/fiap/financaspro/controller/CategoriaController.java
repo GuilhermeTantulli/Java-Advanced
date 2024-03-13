@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -50,20 +51,14 @@ public class CategoriaController {
         return repository
                 .findById(id)
                 .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.notFound().build());
-        
-        
+                .orElse(ResponseEntity.notFound().build());  
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Object> destroy(@PathVariable Long id) {
         log.info("apagando categoria");
 
-        repository
-            .findById(id)
-            .orElseThrow(() -> new ResponseStatusException(
-                                HttpStatus.NOT_FOUND,
-                                "Não existe categoria com o id informado. Consulte lista em /categoria"));
+        verificarSeExisteCategoria(id);
 
         repository.deleteById(id);
         return ResponseEntity.noContent().build();
@@ -73,33 +68,19 @@ public class CategoriaController {
     public ResponseEntity<Categoria> update(@PathVariable Long id, @RequestBody Categoria categoria) {
         log.info("atualizando categoria com id {} para {}", id, categoria);
 
+        verificarSeExisteCategoria(id);
+
+        categoria.setId(id);
+        repository.save(categoria);
+        return ResponseEntity.ok(categoria);
+    }
+
+    private void verificarSeExisteCategoria(Long id) {
         repository
             .findById(id)
             .orElseThrow(() -> new ResponseStatusException(
                                 HttpStatus.NOT_FOUND,
                                 "Não existe categoria com o id informado. Consulte lista em /categoria"));
-
-        var categoriaAtualizada = new Categoria();
-        categoriaAtualizada.setId(id);
-        categoriaAtualizada.setNome(categoria.getNome());
-        categoriaAtualizada.setIcone(categoria.getIcone());
-
-        repository.save(categoriaAtualizada);
-
-        return ResponseEntity.ok(categoriaAtualizada);
-
     }
-
-
-
-
-
-    // private Optional<Categoria> getCategoriaById(Long id) {
-    //     var categoriaEncontrada = repository
-    //             .stream()
-    //             .filter( c -> c.id().equals(id) )
-    //             .findFirst();
-    //     return categoriaEncontrada;
-    // }
 
 }
