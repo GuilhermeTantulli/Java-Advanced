@@ -1,8 +1,6 @@
 package br.com.fiap.financaspro.controller;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -18,6 +16,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.server.ResponseStatusException;
 
 import br.com.fiap.financaspro.model.Categoria;
 import br.com.fiap.financaspro.repository.CategoriaRepository;
@@ -44,62 +43,52 @@ public class CategoriaController {
         return categoria;
     }
     
-    // @GetMapping("/{id}")
-    // public ResponseEntity<Categoria> mostraCategoria(@PathVariable Long id){
-    //     log.info("Buscando categoria por id {}", id);
+    @GetMapping("/{id}")
+    public ResponseEntity<Categoria> mostraCategoria(@PathVariable Long id){
+        log.info("Buscando categoria por id {}", id);
 
-    //     // for (Categoria categoria : repository) {
-    //     //     if (categoria.id().equals(id)) 
-    //     //         return ResponseEntity.ok().body(categoria);
-    //     // }
+        return repository
+                .findById(id)
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.notFound().build());
+        
+        
+    }
 
-    //     var categoriaEncontrada = getCategoriaById(id);
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Object> destroy(@PathVariable Long id) {
+        log.info("apagando categoria");
 
-    //     if (categoriaEncontrada.isEmpty()) {
-    //         return ResponseEntity.notFound().build();
-    //     } 
+        repository
+            .findById(id)
+            .orElseThrow(() -> new ResponseStatusException(
+                                HttpStatus.NOT_FOUND,
+                                "Não existe categoria com o id informado. Consulte lista em /categoria"));
 
-    //     return ResponseEntity.ok(categoriaEncontrada.get());        
-    // }
+        repository.deleteById(id);
+        return ResponseEntity.noContent().build();
+    }
 
-    // @DeleteMapping("/{id}")
-    // public ResponseEntity<Object> destroy(@PathVariable Long id) {
-    //     log.info("apagando categoria");
+    @PutMapping("/{id}")
+    public ResponseEntity<Categoria> update(@PathVariable Long id, @RequestBody Categoria categoria) {
+        log.info("atualizando categoria com id {} para {}", id, categoria);
 
-    //     var categoriaEncontrada = getCategoriaById(id);
+        repository
+            .findById(id)
+            .orElseThrow(() -> new ResponseStatusException(
+                                HttpStatus.NOT_FOUND,
+                                "Não existe categoria com o id informado. Consulte lista em /categoria"));
 
-    //     if (categoriaEncontrada.isEmpty()) {
-    //         return ResponseEntity.notFound().build();
-    //     }
+        var categoriaAtualizada = new Categoria();
+        categoriaAtualizada.setId(id);
+        categoriaAtualizada.setNome(categoria.getNome());
+        categoriaAtualizada.setIcone(categoria.getIcone());
 
-    //     repository.remove(categoriaEncontrada.get());
+        repository.save(categoriaAtualizada);
 
-    //     return ResponseEntity.noContent().build();
-    // }
+        return ResponseEntity.ok(categoriaAtualizada);
 
-    // @PutMapping("/{id}")
-    // public ResponseEntity<Categoria> update(@PathVariable Long id, @RequestBody Categoria categoria) {
-    //     log.info("atualizando categoria com id {} para {}", id, categoria);
-    //     // buscar a categoria
-    //     var categoriaEncontrada = getCategoriaById(id);
-
-    //     if (categoriaEncontrada.isEmpty()) {
-    //         return ResponseEntity.notFound().build();
-    //     }
-
-    //     // criar nova categoria com os novos dados
-    //     var categoriaAntiga = categoriaEncontrada.get();
-    //     var categoriaNova = new Categoria(id, categoria.getNome(), categoria.icone());
-
-    //     // apagar a categoria antiga
-    //     repository.remove(categoriaAntiga);
-
-    //     // salvar a categoria nova
-    //     repository.add(categoriaNova);
-
-    //     return ResponseEntity.ok(categoriaNova);
-
-    // }
+    }
 
 
 
