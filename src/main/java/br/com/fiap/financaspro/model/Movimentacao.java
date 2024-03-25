@@ -3,6 +3,7 @@ package br.com.fiap.financaspro.model;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 
+import br.com.fiap.financaspro.validation.TipoMovimentacao;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -26,16 +27,16 @@ public class Movimentacao {
     @Id @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
 
-    @NotBlank(message = "Descrição é obrigatória")
-    @Size(min = 3, max = 255, message = "Descrição deve ter pelo menos 3 caracteres")
+    @NotBlank(message = "{movimentacao.descricao.notblank}")
+    @Size(min = 3, max = 255, message = "{movimentacao.descricao.size}")
     private String descricao;
 
-    @Positive(message = "O valor deve ser positivo")
+    @Positive(message = "{movimentacao.valor.positive}")
     private BigDecimal valor;
-
+    
     private LocalDate data;
 
-    // @TipoMovimentacao
+    @TipoMovimentacao
     private String tipo; // ENTRADA ou SAIDA
 
 
